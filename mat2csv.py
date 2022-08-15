@@ -1,4 +1,4 @@
-# MAC address table to CSV v0.2.1 by Jeremy Drahos
+# MAC Address Table to CSV v0.2.3 by Jeremy Drahos
 # The supported MAC table format is from IOS/IOS-XE
 # example:
 # Vlan    Mac Address       Type        Ports
@@ -11,7 +11,9 @@ import sys
 
 class mat2csv:
     regex = re.compile(r"\s+(\d+)\s+([0-9a-f]{4}[\.][0-9a-f]{4}[\.][0-9a-f]{4})\s+(\w+)\s+(.+)")
+    ansible_regex = re.compile(r"(\S+)\s\|\s(CHANGED)\s\|\s")
     table = []
+    switch = ''
     usage = 'usage: mat2csv.py -i [inputfile] -o [outputfile]\nIf no arguments are passed, it will use stdin for you to paste the table, then it will be printed.'
     args = sys.argv[0:]
     infile = ''
@@ -31,27 +33,33 @@ class mat2csv:
     def writeheader():
         print(f'Writing CSV header...')
         with open(mat2csv.outfile, 'w') as initheader:
-            initheader.write('vlan,mac,type,if\n')
+            initheader.write('switch,vlan,mac,type,if\n')
         initheader.close()
         print(f'Header written to {mat2csv.outfile}...')
         print(f'Writing CSV file, {mat2csv.outfile}...')
 
     def printit(row):
+        ansible_match = re.match(mat2csv.ansible_regex, row)
         matches = re.match(mat2csv.regex, row)
+        if ansible_match:
+            mat2csv.switch = ansible_match[1]
         if matches:
-            print(f'{matches[1]},{matches[2]},{matches[3]},{matches[4]}')
+            print(f'{mat2csv.switch},{matches[1]},{matches[2]},{matches[3]},{matches[4]}')
         
     def writeit(row):
         with open(mat2csv.outfile, 'a') as writefile:
+            ansible_match = re.match(mat2csv.ansible_regex, row)
             matches = re.match(mat2csv.regex, row)
+            if ansible_match:
+                mat2csv.switch = ansible_match[1]
             if matches:
-                writefile.writelines(f'{matches[1]},{matches[2]},{matches[3]},{matches[4]}\n')
+                writefile.writelines(f'{mat2csv.switch},{matches[1]},{matches[2]},{matches[3]},{matches[4]}\n')
         writefile.close()
 
     def loadcli():
         print('Paste the MAC table output, press return, press ^Z, then press return:\n')
         mat2csv.table = sys.stdin.readlines()
-        print('vlan,mac,type,if')
+        print('switch,vlan,mac,type,if')
         for line in mat2csv.table:
             mat2csv.printit(line)
         print('Processing complete...')
