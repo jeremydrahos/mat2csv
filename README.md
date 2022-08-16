@@ -9,7 +9,6 @@ Vlan    Mac Address       Type        Ports
 
 Usage: mat2csv.py -i [inputfile] -o [outputfile]
 If no arguments are passed, it will be interactive to allow pasting the table, then the csv output will be printed.
-<<<<<<< HEAD
 
 You can also use an Ansible dump.  If you use 'ansible -m raw' to 'show mac address-table' across multiple switches at once, saving or pasting that whole output will identify which switch's MAC table it's processing.
 
