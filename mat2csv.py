@@ -57,7 +57,7 @@ class mat2csv:
         writefile.close()
 
     def loadcli():
-        print('Paste the MAC table output, press return, press ^Z, then press return:\n')
+        print('Paste the MAC table output, press return, ^D (Linux) or ^Z (Windows), then press return:\n')
         mat2csv.table = sys.stdin.readlines()
         print('switch,vlan,mac,type,if')
         for line in mat2csv.table:
